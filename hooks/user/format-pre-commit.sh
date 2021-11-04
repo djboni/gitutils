@@ -142,25 +142,19 @@ done
 # Check whitespace on index (staged) code
 ################################################################################
 
-if [ "$ExitCode" != "0" ]; then
-    echo "################################################################################"
-    echo "# Files reformatted. Not commiting."
-    echo "################################################################################"
+# If there are whitespace errors, print the offending file names and fail.
+
+# Test changes
+git diff-index --check --cached $Against --
+
+# Print error and deny push if there are any problems
+if [ "$?" = "0" ]; then
+    : # OK
 else
-    # If there are whitespace errors, print the offending file names and fail.
-
-    # Test changes
-    git diff-index --check --cached $Against --
-
-    # Print error and deny push if there are any problems
-    if [ "$?" = "0" ]; then
-        : # OK
-    else
-        ExitCode=1
-        echo "################################################################################"
-        echo "# Whitespace errors. Not commiting."
-        echo "################################################################################"
-    fi
+    ExitCode=1
+    echo "################################################################################"
+    echo "# Whitespace errors. Not commiting."
+    echo "################################################################################"
 fi
 
 ################################################################################
