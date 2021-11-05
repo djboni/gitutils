@@ -138,6 +138,15 @@ for File in $(git diff --cached --name-only --diff-filter=d); do
     esac
 done
 
+# Print error and deny push if there are any problems
+if [ "$ExitCode" = "0" ]; then
+    : # OK
+else
+    echo "################################################################################"
+    echo "# Files reformatted. Not commiting."
+    echo "################################################################################"
+fi
+
 ################################################################################
 # Check whitespace on index (staged) code
 ################################################################################
