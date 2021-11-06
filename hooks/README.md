@@ -12,7 +12,7 @@ Tool         | Description
 -------------|-----------------
 clang-format | C/C++ formatter
 black        | Python formatter
-black        | Shell formatter
+shfmt        | Shell formatter
 
 To install dependencies on Ubuntu:
 

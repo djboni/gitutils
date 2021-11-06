@@ -6,9 +6,19 @@ Useful Git stuff.
 
 ### Enfororce formatting on code
 
+Programming languages:
+
+* C/C++
+* Python
+* Shell
+
 Developper: check and format changes before comitting with a pre-commit hook.
 
 Server: check and accept (or reject) changes when a developper pushes.
+
+## [Utilities](https://github.com/djboni/gitutils/blob/main/bin)
+
+Do stuff with changed files beyond just diffing them.
 
 ## [Diff Tools](https://github.com/djboni/gitutils/blob/main/diff)
 
