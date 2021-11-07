@@ -18,7 +18,9 @@ Server: check and accept (or reject) changes when a developper pushes.
 
 ## [Utilities](https://github.com/djboni/gitutils/blob/main/bin)
 
-Do stuff with changed files beyond just diffing them.
+git-format.sh Format your code and check for whitespace errors.
+
+git-do.sh Do stuff with changed files beyond just diffing them.
 
 ## [Diff Tools](https://github.com/djboni/gitutils/blob/main/diff)
 
