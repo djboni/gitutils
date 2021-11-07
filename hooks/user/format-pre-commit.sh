@@ -30,9 +30,6 @@
 # Test if all the files in the index (staged files) follow the coding
 # style convention, rejecting the commit if any do not comply.
 #
-# The code is reformatted when rejected, so the developper can stage the
-# necessary chages to comply.
-#
 # Tested files:
 #     * C/C++ files (clang-format)
 #     * Python files (black)
@@ -51,6 +48,9 @@
 # Indent shell with 4 spaces
 Indent=4
 
+# Redirect output to stderr.
+exec 1>&2
+
 if git rev-parse --verify HEAD >/dev/null 2>&1; then
     Against=HEAD
 else
@@ -60,9 +60,6 @@ fi
 
 # If you want to allow non-ASCII filenames set this variable to true.
 AllowNonASCII=$(git config --bool hooks.allownonascii)
-
-# Redirect output to stderr.
-exec 1>&2
 
 # Cross platform projects tend to avoid non-ASCII filenames; prevent
 # them from being added to the repository. We exploit the fact that the
@@ -93,6 +90,8 @@ fi
 
 ExitCode=0
 
+echo "Checking staged code formatting ..."
+
 # Separator: new line
 IFS="
 "
@@ -121,12 +120,11 @@ for File in $(git diff --cached --name-only --diff-filter=d); do
         git cat-file -p "$FileHash" |
             clang-format --dry-run --Werror 2>/dev/null
 
-        # Format if there are any problems
         if [ "$?" = "0" ]; then
             : # OK
         else
+            # Format if there are any problems
             echo clang-format -i "'$File'"
-            clang-format -i "$File"
             ExitCode=1
         fi
         ;;
@@ -137,12 +135,11 @@ for File in $(git diff --cached --name-only --diff-filter=d); do
         git cat-file -p "$FileHash" |
             black - --line-length=80 --quiet --check 2>/dev/null
 
-        # Format if there are any problems
         if [ "$?" = "0" ]; then
             : # OK
         else
             echo black --line-length=80 --quiet "'$File'"
-            black --line-length=80 --quiet "$File"
+            # Error
             ExitCode=1
         fi
         ;;
@@ -153,44 +150,42 @@ for File in $(git diff --cached --name-only --diff-filter=d); do
         git cat-file -p "$FileHash" |
             shfmt -i=$Indent -d -filename "$File" >/dev/null 2>/dev/null
 
-        # Format if there are any problems
         if [ "$?" = "0" ]; then
             : # OK
         else
+            # Error
             echo shfmt -i=$Indent -w "'$File'"
-            shfmt -i=$Indent -w "$File"
             ExitCode=1
         fi
         ;;
     esac
 done
 
-# Print error and deny push if there are any problems
-if [ "$ExitCode" = "0" ]; then
-    : # OK
-else
+if [ "$ExitCode" != "0" ]; then
     echo "################################################################################"
-    echo "# Files reformatted. Not commiting."
+    echo "# Files need formatting. Not commiting."
     echo "################################################################################"
+    echo
 fi
 
 ################################################################################
 # Check whitespace on index (staged) code
 ################################################################################
 
-# If there are whitespace errors, print the offending file names and fail.
+echo "Checking staged files whitespace ..."
 
-# Test changes
-git diff-index --check --cached $Against --
+# If there are whitespace errors, print the offending file names.
+git diff $Against --cached --check --
 
-# Print error and deny push if there are any problems
+# Print error and deny commit if there are any problems
 if [ "$?" = "0" ]; then
     : # OK
 else
+    echo "################################################################################"
+    echo "# Files have whitespace errors. Not commiting."
+    echo "################################################################################"
+    echo
     ExitCode=1
-    echo "################################################################################"
-    echo "# Whitespace errors. Not commiting."
-    echo "################################################################################"
 fi
 
 ################################################################################
@@ -198,12 +193,19 @@ fi
 #
 # Uncomment steps 1, 3 and 4 to run tests on index (staged) code.
 ################################################################################
+Staged=
 
 if [ "$ExitCode" = "0" ]; then
     # If tests/ directory exists
     if [ -d tests ]; then
+
+        [ ! -z $Staged ] &&
+            echo "Testing staged code ..." ||
+            echo "Testing unstaged code ..."
+
         # 1. Stash changes, but keep index
-        #git stash push --keep-index -m "Pre-commit test" >/dev/null
+        [ ! -z $Staged ] &&
+            git stash push --keep-index -m "Pre-commit test" >/dev/null
 
         # 2. Run tests
         cd tests &&
@@ -212,14 +214,17 @@ if [ "$ExitCode" = "0" ]; then
             echo "################################################################################"
             echo "# Test failed. Not commiting."
             echo "################################################################################"
+            echo
             ExitCode=1
         fi
 
         # 3. Reset hard
-        #git reset --hard >/dev/null
+        [ ! -z $Staged ] &&
+            git reset --hard >/dev/null
 
         # 4. Restore index and changes
-        #git stash pop --index  >/dev/null
+        [ ! -z $Staged ] &&
+            git stash pop --index >/dev/null
     fi
 fi
 

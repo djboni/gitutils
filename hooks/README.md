@@ -23,7 +23,10 @@ sudo snap install shfmt
 
 ### DEVELOPPER formatting pre-commit hook
 
-Check and format changes before comitting with a pre-commit hook.
+Before comitting, check changed files for formatting,
+whitespace errors and run tests.
+
+Install:
 
 1. Clone gitutils in the repository's .git directory;
 2. Link (or copy) the script; and
@@ -52,6 +55,8 @@ cp gitutils/format/clang-format ../.clang-format
 ### SERVER formatting pre-receive hook
 
 Check and accept (or reject) changes when a developper pushes.
+
+Install:
 
 1. Clone gitutils in the repository's bare directory;
 2. Link (or copy) the script; and
