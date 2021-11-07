@@ -62,6 +62,18 @@ while read Ref1 Ref2 Branch; do
         ;;
     esac
 
+    # Pushing new branch: diff against an empty tree object
+    if [ "$Ref1" = "0000000000000000000000000000000000000000" ]; then
+        Against=$(git hash-object -t tree /dev/null)
+        Ref1="$Against"
+    fi
+
+    # Deleting branch: diff against an empty tree object
+    if [ "$Ref2" = "0000000000000000000000000000000000000000" ]; then
+        Against=$(git hash-object -t tree /dev/null)
+        Ref2="$Against"
+    fi
+
     # Get smaller refs instead of big sha1
     Ref1Small="$(git log -1 --oneline --no-decorate "$Ref1" | cut -f 1 -d " ")"
     Ref2Small="$(git log -1 --oneline --no-decorate "$Ref2" | cut -f 1 -d " ")"
@@ -73,12 +85,6 @@ while read Ref1 Ref2 Branch; do
     # Print base commit
     git log -1 --oneline --no-decorate "$Ref1"
     echo
-
-    # Pushing new branch: diff against an empty tree object
-    if [ "$Ref1" = "0000000000000000000000000000000000000000" ]; then
-        Against=$(git hash-object -t tree /dev/null)
-        Ref1="$Against"
-    fi
 
     # List of commits from oldest to newest
     ListOfCommits="$(
