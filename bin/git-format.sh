@@ -115,28 +115,28 @@ for File in $(git diff $Against --name-only --diff-filter=d); do
     case "$FileLower" in
     *.c | *.cpp | *.h | *.hpp)
         # Clang-format (C/C++ format)
-        echo clang-format -i "'$File'"
         git cat-file -p "$FileHash" |
             clang-format --dry-run --Werror 2>/dev/null
         if [ "$?" != "0" ]; then
+            echo clang-format -i "'$File'"
             clang-format -i "$File"
         fi
         ;;
     *.py)
         # Black (Python format)
-        echo black --line-length=80 --quiet "'$File'"
         git cat-file -p "$FileHash" |
             black - --line-length=80 --quiet --check 2>/dev/null
         if [ "$?" != "0" ]; then
+            echo black --line-length=80 --quiet "'$File'"
             black --line-length=80 --quiet "$File"
         fi
         ;;
     *.sh)
         # shfmt (Shell format)
-        echo shfmt -i=$Indent -w "'$File'"
         git cat-file -p "$FileHash" |
             shfmt -i=$Indent -d -filename "$File" >/dev/null 2>/dev/null
         if [ "$?" != "0" ]; then
+            echo shfmt -i=$Indent -w "'$File'"
             shfmt -i=$Indent -w "$File"
         fi
         ;;
