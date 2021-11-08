@@ -100,14 +100,6 @@ for File in $(git diff $Against --name-only --diff-filter=d); do
     # Separator: space
     IFS=" "
 
-    # Get hash of the changed file
-    FileHash="$(git ls-files --stage -- "$File" | cut -d " " -f 2)"
-    if [ "$?" = "0" ]; then
-        : # OK
-    else
-        echo "    Error: Could not find hash of file '$File'."
-    fi
-
     # Lowercase finename to check its extension
     FileLower="$(echo "$File" | tr 'A-Z' 'a-z')"
 
@@ -115,7 +107,7 @@ for File in $(git diff $Against --name-only --diff-filter=d); do
     case "$FileLower" in
     *.c | *.cpp | *.h | *.hpp)
         # Clang-format (C/C++ format)
-        git cat-file -p "$FileHash" |
+        cat "$File" |
             clang-format --dry-run --Werror 2>/dev/null
         if [ "$?" != "0" ]; then
             echo clang-format -i "'$File'"
@@ -124,7 +116,7 @@ for File in $(git diff $Against --name-only --diff-filter=d); do
         ;;
     *.py)
         # Black (Python format)
-        git cat-file -p "$FileHash" |
+        cat "$File" |
             black - --line-length=80 --quiet --check 2>/dev/null
         if [ "$?" != "0" ]; then
             echo black --line-length=80 --quiet "'$File'"
@@ -133,7 +125,7 @@ for File in $(git diff $Against --name-only --diff-filter=d); do
         ;;
     *.sh)
         # shfmt (Shell format)
-        git cat-file -p "$FileHash" |
+        cat "$File" |
             shfmt -i=$Indent -d -filename "$File" >/dev/null 2>/dev/null
         if [ "$?" != "0" ]; then
             echo shfmt -i=$Indent -w "'$File'"
