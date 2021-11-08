@@ -74,16 +74,42 @@ while read Ref1 Ref2 Branch; do
         Ref2="$Against"
     fi
 
-    # Get smaller refs instead of big sha1
-    Ref1Small="$(git log -1 --oneline --no-decorate "$Ref1" | cut -f 1 -d " ")"
-    Ref2Small="$(git log -1 --oneline --no-decorate "$Ref2" | cut -f 1 -d " ")"
+    # Test if the push is forced
+    if git merge-base --is-ancestor "$Ref1" "$Ref2"; then
+        ForcedPush="push"
+    else
+        ForcedPush="*forced push*"
+    fi
 
     # Print change in branch
-    echo "Checking push on branch $Branch:"
-    echo "$Ref1Small..$Ref2Small"
+    echo "Checking $ForcedPush on branch $Branch:"
     echo
-    # Print base commit
-    git log -1 --oneline --no-decorate "$Ref1"
+
+    # Print commit graph
+    # Use sed to manually decorate with NEW and OLD
+    Ref1Small="$(git log -1 --pretty="%h" "$Ref1")"
+    Ref2Small="$(git log -1 --pretty="%h" "$Ref2")"
+    SedScript="
+        # Anotate OLD commit
+        /$Ref1Small/{
+            s/\($Ref1Small[\w]*.*\)/\1 (OLD)/
+            # Finished this line
+            b END
+        }
+
+        # Anotate NEW commit
+        /$Ref2Small/{
+            s/\($Ref2Small[\w]*.*\)/\1 (NEW)/
+            # Finished this line
+            b END
+        }
+
+        # Finished this line
+        : END
+    "
+    git log --graph --oneline \
+        "$Ref1" "$Ref2" --not "$(git merge-base "$Ref1" "$Ref2")^" |
+        sed "$SedScript"
     echo
 
     # List of commits from oldest to newest
