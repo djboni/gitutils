@@ -29,8 +29,7 @@
 
 # Format the code and run a whitespace check.
 #
-# There must be no unstaged changes.
-# The formatting changes are not automaticallystaged.
+# The formatting changes are not staged.
 #
 # Tested files:
 #     * C/C++ files (clang-format)
@@ -41,7 +40,6 @@
 # Exit values:
 # 0   OK
 # 1   Whitespace error
-# 2   Unstaged changes
 # 128 Option errors
 
 # Indent shell with 4 spaces
@@ -62,21 +60,17 @@ fi
 ################################################################################
 
 Usage() {
-    echo "Usage: git-format.sh [-h|--help] [-f|--force]"
+    echo "Usage: git-format.sh [-h|--help]"
 }
 
 ################################################################################
 # Options
 ################################################################################
 
-Force=
-
 while [ $# -gt 0 ]; do
     Opt="$1"
     shift
     case "$Opt" in
-    -f | --force) Force=1 ;;
-    --no-force) Force= ;;
     -h | --help)
         Usage
         exit 0
@@ -90,24 +84,10 @@ while [ $# -gt 0 ]; do
 done
 
 ################################################################################
-# Stop if there are any unstaged changes
+# Go to top level
 ################################################################################
 
-# Got to top level
 cd "$(git rev-parse --show-toplevel)"
-
-NumUnstagedChangedFiles=$(git diff --name-only | wc -l)
-
-if [ $NumUnstagedChangedFiles -ne 0 ]; then
-    if [ ! -z $Force ]; then
-        echo "Force format. Staging everything."
-        git add --all
-    else
-        git status --short
-        echo "There must be no unstaged changes. Pass -f if you want to format anyway."
-        exit 2
-    fi
-fi
 
 ################################################################################
 # Format changed files

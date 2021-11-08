@@ -7,7 +7,7 @@ Useful programs.
 Format your code and check for whitespace errors.
 
 ```
-Usage: git-format.sh [-h|--help] [-f|--force]
+Usage: git-format.sh [-h|--help]
 ```
 
 Install:
