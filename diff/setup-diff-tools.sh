@@ -152,6 +152,30 @@ do_install() {
     git config --local diff.pdf.textconv pdf2txt
     git config --local diff.pdf.binary true
     git config --local diff.pdf.cachetextconv $CacheTextConv
+
+    # Install the .gitattributes file if it does not exist in the
+    # repository root
+    (
+        cd "$(git rev-parse --show-toplevel)"
+        if [ ! -f .gitattributes ]; then
+            cat <<EOF >.gitattributes
+*.doc diff=doc
+*.rtf diff=rtf
+*.docx diff=docx
+*.xls diff=xls
+*.xlsx diff=xlsx
+#*.ppt diff=ppt
+#*.pptx diff=pptx
+*.odt diff=odt
+*.fodt diff=fodt
+*.ods diff=ods
+*.fods diff=fods
+*.odp diff=odp
+*.fodp diff=fodp
+*.pdf diff=pdf
+EOF
+        fi
+    )
 }
 
 # $# Number of arguments
