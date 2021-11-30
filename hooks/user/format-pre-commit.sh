@@ -99,6 +99,11 @@ for File in $(git diff --cached --name-only --diff-filter=d); do
     # Separator: space
     IFS=" "
 
+    if [ -L "$File" ]; then
+        # Ignore symlink
+        continue
+    fi
+
     # Get hash of the changed file
     FileHash="$(git ls-files --stage -- "$File" | cut -d " " -f 2)"
     if [ "$?" = "0" ]; then

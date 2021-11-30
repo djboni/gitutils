@@ -100,6 +100,11 @@ for File in $(git diff $Against --name-only --diff-filter=d); do
     # Separator: space
     IFS=" "
 
+    if [ -L "$File" ]; then
+        # Ignore symlink
+        continue
+    fi
+
     # Lowercase finename to check its extension
     FileLower="$(echo "$File" | tr 'A-Z' 'a-z')"
 
