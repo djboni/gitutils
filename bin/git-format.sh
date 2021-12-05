@@ -60,17 +60,22 @@ fi
 ################################################################################
 
 Usage() {
-    echo "Usage: git-format.sh [-h|--help]"
+    echo "Usage: git-format.sh [-a|--add] [-h|--help]"
 }
 
 ################################################################################
 # Options
 ################################################################################
 
+Add_After_Format=
+
 while [ $# -gt 0 ]; do
     Opt="$1"
     shift
     case "$Opt" in
+    -a | --add)
+        Add_After_Format=1
+        ;;
     -h | --help)
         Usage
         exit 0
@@ -145,10 +150,18 @@ done
 ################################################################################
 
 # If there are whitespace errors, print the offending file names.
-git diff $Against --check --
+git diff $Against --check -- ":(exclude)*/Debug/*"
 if [ "$?" != "0" ]; then
     # Whitespace error
     exit 1
+fi
+
+################################################################################
+# Add changes after formatting
+################################################################################
+
+if [ ! -z $Add_After_Format ]; then
+    git add --all
 fi
 
 ################################################################################
