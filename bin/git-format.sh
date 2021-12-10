@@ -127,10 +127,10 @@ for File in $(git diff $Against --name-only --diff-filter=d); do
     *.py)
         # Black (Python format)
         cat "$File" |
-            black - --line-length=80 --quiet --check 2>/dev/null
+            black - --quiet --check 2>/dev/null
         if [ "$?" != "0" ]; then
-            echo black --line-length=80 --quiet "'$File'"
-            black --line-length=80 --quiet "$File"
+            echo black --quiet "'$File'"
+            black --quiet "$File"
         fi
         ;;
     *.sh)

@@ -192,7 +192,7 @@ while read Ref1 Ref2 Branch; do
 
                 # Test changes
                 git cat-file -p "$FileHash" |
-                    black - --line-length=80 --quiet --check
+                    black - --quiet --check
 
                 # Print error and deny push if there are any problems
                 if [ "$?" = "0" ]; then

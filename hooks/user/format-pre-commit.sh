@@ -138,12 +138,12 @@ for File in $(git diff --cached --name-only --diff-filter=d); do
 
         # Test changes
         git cat-file -p "$FileHash" |
-            black - --line-length=80 --quiet --check 2>/dev/null
+            black - --quiet --check 2>/dev/null
 
         if [ "$?" = "0" ]; then
             : # OK
         else
-            echo black --line-length=80 --quiet "'$File'"
+            echo black --quiet "'$File'"
             # Error
             ExitCode=1
         fi
