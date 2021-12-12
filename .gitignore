@@ -1,1 +1,9 @@
+# Vim
 *.swp
+
+# Python
+__pycache__/
+*.pyc
+
+# C/C++
+*.o
